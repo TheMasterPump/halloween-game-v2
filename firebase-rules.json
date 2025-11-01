@@ -1,0 +1,46 @@
+{
+  "rules": {
+    "presence": {
+      "$sessionId": {
+        ".read": true,
+        ".write": true,
+        ".validate": "newData.hasChildren(['online', 'lastSeen'])"
+      }
+    },
+    "stats": {
+      ".read": true,
+      "onlinePlayers": {
+        ".write": true
+      },
+      "totalGames": {
+        ".write": true
+      }
+    },
+    "rooms": {
+      ".read": true,
+      ".indexOn": ["status", "timestamp"],
+      "$roomId": {
+        ".read": true,
+        ".write": "!data.exists() || data.child('host').val() === newData.child('host').val()",
+        ".validate": "newData.hasChildren(['id', 'host', 'maxPlayers', 'seed', 'status', 'createdAt', 'players'])",
+        "players": {
+          "$playerId": {
+            ".read": true,
+            ".write": true,
+            ".validate": "newData.hasChildren(['name', 'color', 'colorIndex', 'ready', 'alive', 'score', 'y', 'vy'])"
+          }
+        },
+        "$other": {
+          ".validate": "$other === 'id' || $other === 'host' || $other === 'maxPlayers' || $other === 'seed' || $other === 'status' || $other === 'createdAt' || $other === 'players' || $other === 'timestamp'"
+        }
+      }
+    },
+    "leaderboard": {
+      ".read": true,
+      ".indexOn": ["score"],
+      "$entryId": {
+        ".write": true
+      }
+    }
+  }
+}
